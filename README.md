@@ -34,31 +34,29 @@ Usage
    
 Install
 -------
-1. Implementation all library below:
-
+1. Add it in your root build.gradle at the end of repositories:
     ```groovy
-    implementation "com.jakewharton.timber:timber:4.5.1"
-    implementation "io.reactivex:rxandroid:1.1.0"
-    implementation "io.reactivex:rxjava:1.3.2"
+    allprojects {
+    repositories {
+        jcenter()
+        maven { url 'https://jitpack.io' }
+       }
+    }
     ```
-2. In proguard file:
+2. Add the dependency
+    ```groovy
+    dependencies {
+           implementation "com.github.hoanglm4:RxAndroidLogger:1.0.2"
+           implementation "com.jakewharton.timber:timber:4.5.1"
+           implementation "io.reactivex:rxandroid:1.1.0"
+           implementation "io.reactivex:rxjava:1.3.2"
+	 }
+    ```
+3. In proguard file:
     ```
     -dontwarn okio.**
     -dontwarn okhttp3.**
     -dontwarn com.squareup.okhttp.**
     -dontwarn com.google.appengine.**
     -dontwarn javax.servlet.**
-    ```
-3. Using git submodule add rxandroidlogger into your app:
-
-    3.1. Using command for adding git submodule: $ git submodule add https://gitlab.com/bigavu/RxAndroidLogger.git rxandroidlogger/
-    
-    3.2. settings.gradle in your project:
-    ```groovy
-    include ':rxandroidlogger'
-    project(':rxandroidlogger').projectDir = new File('RxAndroidLogger/rxandroidlogger')
-    ```
-    3.3. build.gradle in your app:
-    ```groovy
-    implementation project(":rxandroidlogger")
     ```
