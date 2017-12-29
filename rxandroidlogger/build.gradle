@@ -1,7 +1,4 @@
 apply plugin: 'com.android.library'
-apply plugin: 'com.github.dcendents.android-maven'
-
-group = 'com.github.hoanglm4'
 
 android {
     compileSdkVersion 26
@@ -10,7 +7,7 @@ android {
         minSdkVersion 16
         targetSdkVersion 26
         versionCode 1
-        versionName "1.0.1"
+        versionName VERSION_NAME
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
@@ -46,3 +43,4 @@ dependencies {
     androidTestCompileOnly 'com.android.support.test:runner:1.0.1'
     androidTestCompileOnly 'com.android.support.test.espresso:espresso-core:3.0.1'
 }
+apply from: rootProject.file('gradle/gradle-mvn-push.gradle')
