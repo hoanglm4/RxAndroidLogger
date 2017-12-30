@@ -1,5 +1,5 @@
 # RxAndroidLogger
-RxAndroidLogger is Android Logcat library. I using with Timber, RxJava and Dopbox Api library. It can save logcat to file, then store to dropbox.
+RxAndroidLogger is Android Logcat library. It using with Timber, RxJava and Dopbox Api library. It can save logcat to file, then store to dropbox.
 
 Timber: https://github.com/JakeWharton/timber
 
@@ -46,13 +46,19 @@ Install
 2. Add the dependency
     ```groovy
     dependencies {
-           implementation "com.github.hoanglm4:RxAndroidLogger:1.0.2"
+           implementation "com.mysoftsource.rxandroidlogger:rxandroidlogger:1.0.2"
            implementation "com.jakewharton.timber:timber:4.5.1"
            implementation "io.reactivex:rxandroid:1.1.0"
            implementation "io.reactivex:rxjava:1.3.2"
 	 }
     ```
-3. In proguard file:
+5. Add in manifest file:
+    ```xml
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    ```
+4. In proguard file:
     ```
     -dontwarn okio.**
     -dontwarn okhttp3.**
