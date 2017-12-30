@@ -34,16 +34,7 @@ Usage
    
 Install
 -------
-1. Add it in your root build.gradle at the end of repositories:
-    ```groovy
-    allprojects {
-    repositories {
-        jcenter()
-        maven { url 'https://jitpack.io' }
-       }
-    }
-    ```
-2. Add the dependency
+1. Add the dependency
     ```groovy
     dependencies {
            implementation "com.mysoftsource.rxandroidlogger:rxandroidlogger:1.0.2"
@@ -52,13 +43,13 @@ Install
            implementation "io.reactivex:rxjava:1.3.2"
 	 }
     ```
-5. Add in manifest file:
+2. Add in manifest file:
     ```xml
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
     ```
-4. In proguard file:
+3. In proguard file:
     ```
     -dontwarn okio.**
     -dontwarn okhttp3.**
