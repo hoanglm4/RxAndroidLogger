@@ -1,0 +1,25 @@
+ext {
+    bintrayRepo = 'RxAndroidLogger'
+    bintrayName = 'rxandroidlogger-v2'
+
+    publishedGroupId = 'com.mysoftsource.rxandroidlogger'
+    libraryName = 'RxAndroidLogger'
+    artifact = 'rxandroidlogger'
+
+    libraryDescription = 'Logcat using with Timber, RxJava and Dropbox api on Android'
+
+    siteUrl = 'https://github.com/hoanglm4/RxAndroidLogger'
+    gitUrl = 'https://github.com/hoanglm4/RxAndroidLogger.git'
+
+    libraryVersion = VERSION_NAME
+
+    developerId = 'hoanglm4'
+    developerName = 'Le Minh Hoang'
+    developerEmail = 'minhhoangtoday@gmail.com'
+
+    licenseName = 'The Apache Software License, Version 2.0'
+    licenseUrl = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+    allLicenses = ["Apache-2.0"]
+}
+apply from: 'https://raw.githubusercontent.com/nuuneoi/JCenter/master/installv1.gradle'
+apply from: 'https://raw.githubusercontent.com/nuuneoi/JCenter/master/bintrayv1.gradle'
