@@ -24,6 +24,6 @@ class TBPDebugTree extends Timber.DebugTree {
         builder.append(" ");
         builder.append(t != null ? t : "");
 
-        DbHelper.getInstance().saveLog(builder.toString());
+        DbHelper.getInstance().processSaveLog(builder.toString());
     }
 }
