@@ -2,6 +2,7 @@ package com.mysoftsource.rxandroidlogger.sample;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
@@ -20,9 +21,23 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.click_button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                TBPLogHelper.getInstance().storeDropBox()
-                        .subscribe(path -> Toast.makeText(getApplicationContext(), "Path saved: " + path, Toast.LENGTH_LONG).show(),
-                                throwable -> Toast.makeText(getApplicationContext(), "Store logcat is failed " + throwable.getMessage(), Toast.LENGTH_LONG).show());
+                TBPLogHelper.getInstance().storeAllPreviousLogToDropBox()
+                        .subscribe(path -> {
+                            Log.d("MainActivity", "Path saved: " + path);
+                            Toast.makeText(getApplicationContext(), "Path saved: " + path, Toast.LENGTH_LONG).show();
+                        }, throwable -> {
+                            Toast.makeText(getApplicationContext(), "Store logcat is failed " + throwable.getMessage(), Toast.LENGTH_LONG);
+                            Log.e("MainActivity", "Store logcat is failed ", throwable);
+                        });
+            }
+        });
+
+        findViewById(R.id.dummy_log).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                for (int i = 0; i < 10000; i++) {
+                    Timber.i("dummy " + i);
+                }
             }
         });
     }
