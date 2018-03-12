@@ -4,7 +4,9 @@ import com.dropbox.core.DbxException;
 import com.dropbox.core.v2.files.FileMetadata;
 import com.dropbox.core.v2.files.WriteMode;
 import com.dropbox.core.v2.sharing.ListSharedLinksResult;
+import com.dropbox.core.v2.sharing.RequestedVisibility;
 import com.dropbox.core.v2.sharing.SharedLinkMetadata;
+import com.dropbox.core.v2.sharing.SharedLinkSettings;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -61,6 +63,7 @@ public class DropboxUploader extends Uploader {
                     .sharing()
                     .listSharedLinksBuilder()
                     .withPath(remoteFile)
+                    .withDirectOnly(true)
                     .start();
             TPBLog.i("getSharedLink>> links = %s", linksResult.getLinks().toString());
             return linksResult.getLinks().size() == 0 ? null : linksResult.getLinks().get(0);
