@@ -5,7 +5,6 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Environment;
-import android.util.Log;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -17,22 +16,22 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Locale;
-
-import rx.Observable;
+import java.util.UUID;
 
 class FileUtil {
     private static final String TAG = FileUtil.class.getCanonicalName();
 
     private static final String INTERNAL_CACHE_SUB_DIR = "logger_internal";
-    private static final String INTERNAL_CACHE_FILE_NAME = "TBPLog.txt";
+    private static final String INTERNAL_CACHE_FILE_NAME = "TBPTBPLog.txt";
     private static final String EXTERNAL_CACHE_SUB_DIR = "logger_external";
-    private static final String EXTERNAL_FILE_NAME = "TBPLog_%1s_%2s_%3s_%4d_%5s.txt.gz";
+    private static final String EXTERNAL_FILE_NAME = "TBPLog_%1s_%2s_%3s_%4d_%5s_%6s.txt.gz";
 
     static void deleteWithoutException(File file) {
+        TPBLog.i("deleteWithoutException>> is called");
         try {
             FileUtils.forceDelete(file);
         } catch (IOException e) {
-            Log.e(TAG, "deleteWithoutException>> " + e);
+            TPBLog.e("deleteWithoutException>> " + e);
         }
     }
 
@@ -49,7 +48,8 @@ class FileUtil {
                 Build.MANUFACTURER,
                 getVersionName(context),
                 Build.VERSION.SDK_INT,
-                DateTimeUtil.getCurrentTime()));
+                DateTimeUtil.getCurrentTime(),
+                generalClientId()));
         return externalStorageDir;
     }
 
@@ -90,9 +90,13 @@ class FileUtil {
             writer = new PrintWriter(file);
             writer.print("");
         } catch (FileNotFoundException e) {
-            Log.e(TAG, "clearPrintWriter>> is failed, cause = " + e);
+            TPBLog.e("clearPrintWriter>> is failed, cause = " + e);
         } finally {
             IOUtils.closeQuietly(writer);
         }
+    }
+
+    static String generalClientId() {
+        return UUID.randomUUID().toString().replaceAll("-", "");
     }
 }

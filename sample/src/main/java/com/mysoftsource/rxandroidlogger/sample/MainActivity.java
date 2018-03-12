@@ -7,6 +7,7 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.mysoftsource.rxandroidlogger.TBPLogHelper;
+import com.mysoftsource.rxandroidlogger.TPBLog;
 
 import timber.log.Timber;
 
@@ -22,12 +23,13 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 TBPLogHelper.getInstance().storeAllPreviousLogToDropBox()
+                        .doOnSubscribe(() -> Log.d("MainActivity", "doOnSubscribe"))
                         .subscribe(path -> {
-                            Log.d("MainActivity", "Path saved: " + path);
+                            TPBLog.d( "Path saved: " + path);
                             Toast.makeText(getApplicationContext(), "Path saved: " + path, Toast.LENGTH_LONG).show();
                         }, throwable -> {
                             Toast.makeText(getApplicationContext(), "Store logcat is failed " + throwable.getMessage(), Toast.LENGTH_LONG);
-                            Log.e("MainActivity", "Store logcat is failed ", throwable);
+                            TPBLog.e( throwable,"Store logcat is failed ");
                         });
             }
         });

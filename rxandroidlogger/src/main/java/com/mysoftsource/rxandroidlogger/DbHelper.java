@@ -6,6 +6,7 @@ import android.util.Log;
 import org.apache.commons.io.comparator.LastModifiedFileComparator;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -16,8 +17,6 @@ import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
 class DbHelper {
-    private static final String TAG = DbHelper.class.getCanonicalName();
-
     private static final long MAXIMUM_FILE_SIZE = 100 * 1024 * 1024; // 100 MB
     private static final int LIMIT_SPLIT_FILE_LOG = 3;
 
@@ -66,7 +65,7 @@ class DbHelper {
         copyExternalAndClearLatestFileLogObservable()
                 .flatMap(success -> saveLogObservable(previousLogText))
                 .onErrorReturn(throwable -> {
-                    Log.e(TAG, "processSaveLog>> " + throwable);
+                    TPBLog.e("processSaveLog>> " + throwable);
                     return false;
                 })
                 .doOnNext(success -> {
@@ -83,32 +82,36 @@ class DbHelper {
         }
         deletePreviousFileIfNeed();
         return getAndCopyExternalLatestFileLog()
-                .doOnNext(file -> Log.i(TAG, "new file is created, fileName = " + file.getAbsolutePath()))
+                .doOnNext(file -> TPBLog.i("new file is created, fileName = " + file.getAbsolutePath()))
                 .map(file -> true)
                 .onErrorReturn(throwable -> {
-                    Log.e(TAG, "copyExternalAndClearLatestFileLogObservable>> " + throwable);
+                    TPBLog.e("copyExternalAndClearLatestFileLogObservable>> " + throwable);
                     return false;
                 })
-                .doOnNext(success -> Log.i(TAG, "copyExternalAndClearLatestFileLogObservable>> copy external file log is success = " + success));
+                .doOnNext(success -> TPBLog.i("copyExternalAndClearLatestFileLogObservable>> copy external file log is success = " + success));
     }
 
     Observable<File> getAndCopyExternalLatestFileLog() {
         if (mIsReading.compareAndSet(false, true)) {
-            final File outFile = FileUtil.getExternalLogFile(mContext);
-            return Observable.fromCallable(() -> {
-                Log.i(TAG, "getAndCopyExternalLatestFileLog>> before size = " + outFile.length());
+            return Observable.defer(() -> {
+                final File outFile = FileUtil.getExternalLogFile(mContext);
+                TPBLog.i("getAndCopyExternalLatestFileLog>> before size = " + outFile.length());
                 waitWritingRelease();
-                GZIPUtil.copyAndCompress(mInternalFile, outFile);
-                Log.i(TAG, "getAndCopyExternalLatestFileLog after size = " + outFile.length());
-                return outFile;
+                try {
+                    GZIPUtil.copyAndCompress(mInternalFile, outFile);
+                } catch (IOException e) {
+                    FileUtil.deleteWithoutException(outFile);
+                    return Observable.error(e);
+                }
+                TPBLog.i("getAndCopyExternalLatestFileLog after size = " + outFile.length());
+                return Observable.just(outFile);
             })
                     .doOnNext(file -> {
                         clearInternalLogFile();
                         mIsReading.set(false);
                     })
                     .doOnError(throwable -> {
-                        Log.e(TAG, "getAndCopyExternalLatestFileLog>> error = " + throwable);
-                        FileUtil.deleteWithoutException(outFile);
+                        TPBLog.e("getAndCopyExternalLatestFileLog>> error = " + throwable);
                         mIsReading.set(false);
                     })
                     .subscribeOn(Schedulers.io());
@@ -132,9 +135,9 @@ class DbHelper {
                 try {
                     mIsWriting.wait(5000L);
                 } catch (InterruptedException e) {
-                    Log.e(TAG, "waitWritingRelease>> waiting is release" + e);
+                    TPBLog.e("waitWritingRelease>> waiting is release" + e);
                 } catch (IllegalMonitorStateException e) {
-                    Log.e(TAG, "waitWritingRelease>> waiting is release" + e);
+                    TPBLog.e("waitWritingRelease>> waiting is release" + e);
                 }
             }
         }
@@ -159,7 +162,7 @@ class DbHelper {
             FileUtil.appendText(mInternalFile, logText);
             return true;
         })
-                .doOnError(throwable -> Log.e(TAG, "saveLogObservable>> is failed, cause = " + throwable))
+                .doOnError(throwable -> TPBLog.e("saveLogObservable>> is failed, cause = " + throwable))
                 .subscribeOn(Schedulers.io());
     }
 
@@ -172,13 +175,13 @@ class DbHelper {
         if (files == null || files.length < LIMIT_SPLIT_FILE_LOG) {
             return;
         }
-        Log.i(TAG, "deletePreviousFileIfNeed>> size of external file before delete = " + files.length);
+        TPBLog.i("deletePreviousFileIfNeed>> size of external file before delete = " + files.length);
         Arrays.sort(files, LastModifiedFileComparator.LASTMODIFIED_COMPARATOR);
         int indexEnd = files.length + 1 - LIMIT_SPLIT_FILE_LOG;
         for (int i = 0; i < indexEnd; i++) {
             FileUtil.deleteWithoutException(files[i]);
         }
         File externalDirAfterDeleted = FileUtil.getExternalDir();
-        Log.i(TAG, "deletePreviousFileIfNeed>> size of external file after delete = " + (externalDirAfterDeleted.listFiles() != null ? externalDirAfterDeleted.listFiles().length : 0));
+        TPBLog.i("deletePreviousFileIfNeed>> size of external file after delete = " + (externalDirAfterDeleted.listFiles() != null ? externalDirAfterDeleted.listFiles().length : 0));
     }
 }
