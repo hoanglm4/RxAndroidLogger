@@ -9,18 +9,18 @@ public class LogSetup {
     @NonNull
     public final String dropboxAccessToken;
     @NonNull
-    public final String dropboxPath;
+    public final String serverFilePath;
     @Nullable
     public final File localFilePath;
     @NonNull
     public final boolean isDeletePreviousFileLog;
 
     private LogSetup(@NonNull String dropboxAccessToken,
-                     @NonNull String dropboxPath,
+                     @NonNull String serverFilePath,
                      @Nullable File localFilePath,
                      @NonNull boolean isDeletePreviousFileLog) {
         this.dropboxAccessToken = dropboxAccessToken;
-        this.dropboxPath = dropboxPath;
+        this.serverFilePath = serverFilePath;
         this.localFilePath = localFilePath;
         this.isDeletePreviousFileLog = isDeletePreviousFileLog;
     }
@@ -29,7 +29,7 @@ public class LogSetup {
         @NonNull
         String dropboxAccessToken;
         @NonNull
-        String dropboxPath;
+        String serverFilePath;
         @Nullable
         File localFilePath;
         boolean isDeletePreviousFileLog = false;
@@ -39,8 +39,8 @@ public class LogSetup {
             return this;
         }
 
-        public Builder setDropboxPath(String dropboxPath) {
-            this.dropboxPath = dropboxPath;
+        public Builder setServerFilePath(String storePath) {
+            this.serverFilePath = storePath;
             return this;
         }
 
@@ -58,11 +58,11 @@ public class LogSetup {
             if (dropboxAccessToken == null) {
                 throw new IllegalStateException("missing set dropbox access token");
             }
-            if (dropboxPath == null) {
+            if (serverFilePath == null) {
                 throw new IllegalStateException("missing set dropbox path");
             }
             return new LogSetup(dropboxAccessToken,
-                    dropboxPath,
+                    serverFilePath,
                     localFilePath,
                     isDeletePreviousFileLog);
         }

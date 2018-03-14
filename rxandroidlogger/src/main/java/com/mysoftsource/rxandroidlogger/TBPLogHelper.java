@@ -1,17 +1,7 @@
 package com.mysoftsource.rxandroidlogger;
 
 import android.content.Context;
-import android.os.Build;
-import android.util.Log;
-
-import com.dropbox.core.DbxException;
-import com.dropbox.core.v2.files.FileMetadata;
-import com.dropbox.core.v2.files.WriteMode;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import android.text.TextUtils;
 
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
@@ -22,6 +12,8 @@ public class TBPLogHelper {
 
     private final TBPDebugTree mTBPDebugTree;
     private final LogSetup mOptions;
+    private final Uploader mUploader;
+    private final Observable<String> mSharedStoreAllLog;
 
     public synchronized static TBPLogHelper create(Context context, LogSetup options) {
         if (sInstance == null) {
@@ -38,49 +30,39 @@ public class TBPLogHelper {
         mOptions = options;
         mTBPDebugTree = new TBPDebugTree(context);
         DbHelper.create(context, mOptions);
-        DropboxClientFactory.init(mOptions.dropboxAccessToken);
+        mUploader = createUploader();
+        mSharedStoreAllLog = createSharedAllLog();
+    }
+
+    private Uploader createUploader() {
+        if (!TextUtils.isEmpty(mOptions.dropboxAccessToken)) {
+            return new DropboxUploader(mOptions.serverFilePath, mOptions.dropboxAccessToken);
+        }
+        // for default
+        return new DropboxUploader(mOptions.serverFilePath, mOptions.dropboxAccessToken);
+    }
+
+    private Observable<String> createSharedAllLog() {
+        return DbHelper.getInstance().getAllExternalFileLog()
+                .concatMap(localFile -> mUploader.upload(localFile))
+                .publish()
+                .refCount();
     }
 
     public TBPDebugTree getTBPDebugTree() {
         return mTBPDebugTree;
     }
 
-    public Observable<String> storeLatestLogDropBox() {
-        return DbHelper.getInstance().getAndCopyExternalLatestFileLog()
-                .flatMap(localFile -> uploadAndFinish(localFile))
-                .map(fileMetadata -> fileMetadata.getPathLower())
-                .observeOn(AndroidSchedulers.mainThread());
+    public Observable<String> storeAllLog() {
+        return mSharedStoreAllLog.observeOn(AndroidSchedulers.mainThread());
     }
 
+    /**
+     * Please using storeAllLog()
+     *
+     */
+    @Deprecated
     public Observable<String> storeAllPreviousLogToDropBox() {
-        return DbHelper.getInstance().getAllExternalFileLog()
-                .concatMap(localFile -> uploadAndFinish(localFile))
-                .map(fileMetadata -> fileMetadata.getPathLower())
-                .observeOn(AndroidSchedulers.mainThread());
-    }
-
-    private Observable<FileMetadata> uploadAndFinish(File localFile) {
-        Log.d(TAG, "uploadAndFinish>> update file = " + localFile.getAbsolutePath());
-        return Observable.defer(() -> {
-            String path = getDropboxPath(localFile);
-            try (InputStream inputStream = new FileInputStream(localFile)) {
-                FileMetadata fileMetadata = DropboxClientFactory.getClient().files().uploadBuilder(path)
-                        .withMode(WriteMode.OVERWRITE)
-                        .uploadAndFinish(inputStream);
-                return Observable.just(fileMetadata);
-            } catch (DbxException | IOException e) {
-                return Observable.error(e);
-            }
-        }).doOnNext(fileMetadata -> FileUtil.deleteWithoutException(localFile));
-    }
-
-    private String getDropboxPath(File localFile) {
-        String remoteFileName = localFile.getName();
-        StringBuilder pathBuilder = new StringBuilder(mOptions.dropboxPath);
-        pathBuilder.append("/");
-        pathBuilder.append(Build.MODEL);
-        pathBuilder.append("/");
-        pathBuilder.append(remoteFileName);
-        return pathBuilder.toString();
+        return storeAllLog();
     }
 }
