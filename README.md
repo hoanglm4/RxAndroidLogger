@@ -37,7 +37,7 @@ Install
 1. Add the dependency
     ```groovy
     dependencies {
-           implementation "com.mysoftsource.rxandroidlogger:rxandroidlogger:1.0.5"
+           implementation "com.mysoftsource.rxandroidlogger:rxandroidlogger:1.0.6"
            implementation "com.jakewharton.timber:timber:4.5.1"
            implementation "io.reactivex:rxandroid:1.1.0"
            implementation "io.reactivex:rxjava:1.3.2"
