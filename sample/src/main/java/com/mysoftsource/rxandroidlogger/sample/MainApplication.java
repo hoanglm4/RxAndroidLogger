@@ -13,7 +13,7 @@ public class MainApplication extends Application {
         super.onCreate();
         LogSetup.Builder options = new LogSetup.Builder();
         options.setDropboxAccessToken("JM5srPDuSpMAAAAAAAAUmLljWVbGxYfdy7T3W_Dsh1Sv8B7-7H87QTgdWghuQAR-");
-        options.setDropboxPath("/TPBLog");
+        options.setServerFilePath("/TPBLog");
         TBPLogHelper.create(this, options.build());
 
         Timber.plant(TBPLogHelper.getInstance().getTBPDebugTree());
